@@ -1,0 +1,24 @@
+{
+  "name": "pager-rn",
+  "version": "0.0.0",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "files": [
+    "build/*"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/react": "~18.0.24",
+    "@types/react-native": "~0.70.6",
+    "typescript": "^4.6.3"
+  },
+  "peerDependencies": {
+    "react": "18.1.0",
+    "react-native": "0.70.5",
+    "react-native-gesture-handler": "^2.8.0",
+    "react-native-reanimated": "^2.12.0"
+  }
+}

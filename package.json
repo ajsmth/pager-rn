@@ -1,0 +1,12 @@
+{
+  "private": true,
+  "name": "react-native-pager",
+  "version": "1.0.0",
+  "workspaces": [
+    "example",
+    "lib"
+  ],
+  "scripts": {
+    "start": "cd example && yarn start"
+  }
+}
