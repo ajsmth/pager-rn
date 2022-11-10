@@ -6,12 +6,14 @@ import { Button } from "react-native";
 
 let interpolation: Interpolation = {
   transforms: {
-    scale: [0.2, 1],
-    rotate: ["45deg", "0deg", "45deg"],
+    scale: [0.95, 1, 0.95],
+    translateY: [0, 0, 0, 10, -15],
+    translateX: [0, 0, -325],
+    rotate: ["-20deg", "-20deg", "0deg", "-7.5deg", "5deg"],
   },
-
-  zIndex: [0, 2, 0],
-  extrapolate: "identity"
+  zIndex: [1, 1, 0],
+  opacity: [0, 0, 0, 1, 1, 1, 0],
+  extrapolate: "extend",
 };
 
 export default function App() {
@@ -24,22 +26,31 @@ export default function App() {
         activeIndex={activeIndex}
         onChange={setActiveIndex}
         interpolation={interpolation}
-        style={{ padding: 24, borderWidth: 1 }}
-        circular={false}
+        style={{ padding: 24, }}
+        circular={true}
       >
         <Pager.Container
           style={{
             padding: 24,
           }}
         >
-          <Pager.Page>
-            <Page>1</Page>
+          <Pager.Page style={{ }}>
+            <Page index={0}>1</Page>
           </Pager.Page>
           <Pager.Page>
-            <Page>2</Page>
+            <Page index={1}>2</Page>
           </Pager.Page>
           <Pager.Page>
-            <Page>3</Page>
+            <Page index={2}>3</Page>
+          </Pager.Page>
+          <Pager.Page>
+            <Page index={3}>4</Page>
+          </Pager.Page>
+          <Pager.Page>
+            <Page index={4}>5</Page>
+          </Pager.Page>
+          <Pager.Page>
+            <Page index={5}>6</Page>
           </Pager.Page>
         </Pager.Container>
 
@@ -53,28 +64,30 @@ export default function App() {
   );
 }
 
-function Page({ bg = "white", children }) {
-  let style = useInterpolation({
-    transforms: {
-      scale: [0.2, 1],
-      rotate: ["45deg", "0deg", "45deg"],
-    },
-  });
+const colors = [
+  "aquamarine",
+  "coral",
+  "gold",
+  "cadetblue",
+  "crimson",
+  "darkorange",
+  "darkmagenta",
+  "salmon",
+];
 
+function Page({ index = 0, children }) {
   return (
     <Animated.View
-      style={[
-        {
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: bg,
-          borderWidth: 1,
-        },
-        // style,
-      ]}
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        borderRadius: 10,
+        marginHorizontal: 5,
+        backgroundColor: colors[index % colors.length],
+      }}
     >
-      <Animated.Text>{children}</Animated.Text>
+      <Animated.Text>{`Screen: ${index}`}</Animated.Text>
     </Animated.View>
   );
 }
