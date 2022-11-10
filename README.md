@@ -2,6 +2,12 @@
 
 This library is a port of [`react-native-pager`](https://github.com/ajsmth/react-native-pager) using the latest Reanimated / React Native Gesture Handler APIs
 
+<p align="center" style="display: flex; justify-content: center; align-items:center;">
+<img src="https://user-images.githubusercontent.com/40680668/201206918-d8cede47-0421-4464-a221-d1e6d46c5ba4.mov" width="300px" />  
+</p>
+
+
+
 ## Install
 
 ```bash
