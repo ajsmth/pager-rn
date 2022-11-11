@@ -163,7 +163,7 @@ let interpolation: Interpolation = {
   // Ensure sibling pages appear behind the active page
   zIndex: [0, 1, 0],
 
-  // More granular interpolations are configurable:
+  // Interpolations are configurable:
   opacity: {
     // The input refers to the position relative to the active page
     // e.g [left, active, right]
@@ -195,6 +195,23 @@ export default function App() {
     </GestureHandlerRootView>
   );
 }
+```
+
+
+You can do lots of cool stuff with interpolations - for example, the video at the top of this README uses the following interopolation prop: 
+
+```tsx
+let interpolation: Interpolation = {
+  transforms: {
+    scale: [0.95, 1, 0.95],
+    translateY: [0, 0, 0, 10, -15],
+    translateX: [0, 0, -325],
+    rotate: ["-20deg", "-20deg", "0deg", "-7.5deg", "5deg"],
+  },
+  zIndex: [1, 1, 0],
+  opacity: [0, 0, 1, 1, 1, 1, 0],
+  extrapolate: "extend",
+};
 ```
 
 Interpolations can be applied at a page level via the `useInterpolation()` hook:
