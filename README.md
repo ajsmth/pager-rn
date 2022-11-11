@@ -33,7 +33,7 @@ Note: These versions were used to develop this package:
 
 ```tsx
 import * as React from "react";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { Pager } from "pager-rn";
@@ -41,8 +41,8 @@ import { Pager } from "pager-rn";
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Pager.Root>
-        <Pager.Container>
+      <Pager.Root style={{ padding: 24 }}>
+        <Pager.Container style={{ padding: 24, borderWidth: 1 }}>
           <Pager.Page>
             <MyPage>1</MyPage>
           </Pager.Page>
@@ -60,7 +60,7 @@ export default function App() {
 
 function MyPage({ children }) {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", borderWidth: 1, backgroundColor: "white" }}>
       <Text>{children}</Text>
     </View>
   );
@@ -215,6 +215,8 @@ let interpolation: Interpolation = {
 ```
 
 Interpolations can be applied at a page level via the `useInterpolation()` hook:
+
+Note - `zIndex` will not work with this hook!
 
 ```tsx
 import * as React from "react";
