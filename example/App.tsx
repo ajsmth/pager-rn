@@ -16,8 +16,12 @@ let interpolation: Interpolation = {
   extrapolate: "extend",
 };
 
+let pages = Array.from({ length: 1000 });
+
 export default function App() {
-  const [activeIndex, setActiveIndex] = React.useState(0);
+  const [activeIndex, setActiveIndex] = React.useState(
+    Math.floor(pages.length / 2)
+  );
   let myAnimatedIndex = useSharedValue(0);
 
   return (
@@ -26,32 +30,21 @@ export default function App() {
         activeIndex={activeIndex}
         onChange={setActiveIndex}
         interpolation={interpolation}
-        style={{ padding: 24, }}
+        style={{ padding: 24 }}
+        pageOffset={1}
         circular={true}
+        // orientation="vertical"
       >
         <Pager.Container
           style={{
             padding: 24,
           }}
         >
-          <Pager.Page style={{ }}>
-            <Page index={0}>1</Page>
-          </Pager.Page>
-          <Pager.Page>
-            <Page index={1}>2</Page>
-          </Pager.Page>
-          <Pager.Page>
-            <Page index={2}>3</Page>
-          </Pager.Page>
-          <Pager.Page>
-            <Page index={3}>4</Page>
-          </Pager.Page>
-          <Pager.Page>
-            <Page index={4}>5</Page>
-          </Pager.Page>
-          <Pager.Page>
-            <Page index={5}>6</Page>
-          </Pager.Page>
+          {pages.map((page, i) => (
+            <Pager.Page key={i}>
+              <Page index={i} />
+            </Pager.Page>
+          ))}
         </Pager.Container>
 
         <Animated.View>
@@ -75,7 +68,7 @@ const colors = [
   "salmon",
 ];
 
-function Page({ index = 0, children }) {
+function Page({ index = 0 }) {
   return (
     <Animated.View
       style={{

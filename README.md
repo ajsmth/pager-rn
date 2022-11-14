@@ -6,8 +6,6 @@ This library is a port of [`react-native-pager`](https://github.com/ajsmth/react
 <img src="https://user-images.githubusercontent.com/40680668/201206918-d8cede47-0421-4464-a221-d1e6d46c5ba4.mov" width="300px" />  
 </p>
 
-
-
 ## Install
 
 ```bash
@@ -60,7 +58,15 @@ export default function App() {
 
 function MyPage({ children }) {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", borderWidth: 1, backgroundColor: "white" }}>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        borderWidth: 1,
+        backgroundColor: "white",
+      }}
+    >
       <Text>{children}</Text>
     </View>
   );
@@ -111,7 +117,8 @@ export default function App() {
   let circular = false;
 
   // Restrict the number of pages rendered at any given time:
-  let maxPages = 5;
+  // E.g: This will render the 5 pages left and right of the activeIndex
+  let pageOffset = 5;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -197,8 +204,7 @@ export default function App() {
 }
 ```
 
-
-You can do lots of cool stuff with interpolations - for example, the video at the top of this README uses the following interopolation prop: 
+You can do lots of cool stuff with interpolations - for example, the video at the top of this README uses the following interopolation prop:
 
 ```tsx
 let interpolation: Interpolation = {

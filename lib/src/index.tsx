@@ -57,7 +57,7 @@ function Root({
   activeIndex: controlledIndex,
   onChange = () => {},
   animatedIndex: controlledAnimatedIndex,
-  maxPages = 5,
+  pageOffset = 5,
   circular = false,
   orientation = "horizontal",
   interpolation,
@@ -68,13 +68,13 @@ function Root({
 
   let activeIndex = controlledIndex != null ? controlledIndex : _activeIndex;
   let setActiveIndex = controlledIndex != null ? onChange : _setActiveIndex;
-
   let [containerLayout, setContainerLayout] = React.useState<LayoutRectangle>({
     x: 0,
     y: 0,
     width: 0,
     height: 0,
   });
+  let [pageCount, setPageCount] = React.useState(0);
 
   let offsetX = useSharedValue(0);
   let offsetY = useSharedValue(0);
@@ -97,16 +97,25 @@ function Root({
 
   gesture.onEnd((event) => {
     let nextIndex = Math.round(offset.value / pageSize) * -1;
+
+    if (!circular) {
+      nextIndex = Math.min(Math.max(nextIndex, 0), pageCount - 1);
+    }
+
     setOffsetForIndex(nextIndex);
     runOnJS(setActiveIndex)(nextIndex);
   });
 
   let setOffsetForIndex = React.useCallback(
     (nextIndex: number) => {
+      if (!circular) {
+        nextIndex = Math.min(Math.max(nextIndex, 0), pageCount - 1);
+      }
+
       let nextOffset = nextIndex * pageSize * -1;
       offset.value = withSpring(nextOffset, springConfig);
     },
-    [pageSize]
+    [pageSize, circular]
   );
 
   React.useEffect(() => {
@@ -119,18 +128,20 @@ function Root({
 
   return (
     <SettingsContext.Provider
-      value={{ maxPages, circular, orientation, pageSize, interpolation }}
+      value={{ pageOffset, circular, orientation, pageSize, interpolation }}
     >
       <ActiveIndexContext.Provider value={activeIndex}>
         <AnimatedIndexContext.Provider value={animatedIndex}>
           <OffsetContext.Provider value={offset}>
             <LayoutContext.Provider value={containerLayout}>
               <SetLayoutContext.Provider value={setContainerLayout}>
-                <GestureDetector gesture={gesture}>
-                  <Animated.View {...rest} style={[{ flex: 1 }, rest.style]}>
-                    {children}
-                  </Animated.View>
-                </GestureDetector>
+                <SetPageCountContext.Provider value={setPageCount}>
+                  <GestureDetector gesture={gesture}>
+                    <Animated.View {...rest} style={[{ flex: 1 }, rest.style]}>
+                      {children}
+                    </Animated.View>
+                  </GestureDetector>
+                </SetPageCountContext.Provider>
               </SetLayoutContext.Provider>
             </LayoutContext.Provider>
           </OffsetContext.Provider>
@@ -143,15 +154,14 @@ function Root({
 let ActiveIndexContext = React.createContext(0);
 let useActiveIndex = () => React.useContext(ActiveIndexContext);
 
-let PageSizeContext = React.createContext(0);
-let usePageSize = () => React.useContext(PageSizeContext);
+let SetPageCountContext = React.createContext((pageCount: number) => {});
 
 // @ts-ignore
 let AnimatedIndexContext = React.createContext<SharedValue<number>>();
 export let useAnimatedIndex = () => React.useContext(AnimatedIndexContext);
 
 type PagerSettings = {
-  maxPages?: number;
+  pageOffset?: number;
   circular?: boolean;
   orientation?: "horizontal" | "vertical";
   pageSize: number;
@@ -159,7 +169,7 @@ type PagerSettings = {
 };
 
 let SettingsContext = React.createContext<PagerSettings>({
-  maxPages: 5,
+  pageOffset: 5,
   circular: true,
   orientation: "horizontal",
   pageSize: 0,
@@ -170,7 +180,8 @@ function getActiveChildren(arr: any[], centerIndex: number, offset: number) {
   let length = arr.length;
 
   for (let i = centerIndex - offset; i <= centerIndex + offset; i++) {
-    let child = arr[((i % length) + length) % length];
+    let circularIndex = ((i % length) + length) % length;
+    let child = arr[circularIndex];
     children.push(child);
   }
 
@@ -194,10 +205,17 @@ let SetLayoutContext = React.createContext<any>(() => {});
 function Container({ children, ...rest }: ViewProps) {
   let containerLayout = useLayout();
   let setContainerLayout = React.useContext(SetLayoutContext);
+  let setPageCount = React.useContext(SetPageCountContext);
 
   let onLayout = React.useCallback((event: LayoutChangeEvent) => {
     setContainerLayout(event.nativeEvent.layout);
   }, []);
+
+  let numberOfPages = React.Children.count(children);
+
+  React.useEffect(() => {
+    setPageCount(numberOfPages);
+  }, [numberOfPages]);
 
   let offset = useOffset();
   let activeIndex = useActiveIndex();
@@ -206,24 +224,37 @@ function Container({ children, ...rest }: ViewProps) {
   let style = useAnimatedStyle(() => {
     let transform =
       settings.orientation === "horizontal"
-        ? { translateX: offset.value }
-        : { translateY: offset.value };
+        ? {
+            translateX: settings.circular
+              ? offset.value
+              : Math.min(offset.value, settings.pageSize),
+          }
+        : {
+            translateY: settings.circular
+              ? offset.value
+              : Math.min(offset.value, settings.pageSize),
+          };
 
     return {
       flex: 1,
       transform: [transform],
     };
-  }, [settings.orientation]);
+  }, [settings.orientation, settings.circular, settings.pageSize]);
 
-  let maxPages = settings.maxPages != null ? settings.maxPages : 5;
+  let pageOffset = settings.pageOffset != null ? settings.pageOffset : 5;
+
+  let childrenAsArray = React.Children.toArray(children);
 
   let c = settings.circular
-    ? getActiveChildren(
-        React.Children.toArray(children),
-        activeIndex,
-        maxPages - 1
-      )
-    : React.Children.toArray(children);
+    ? getActiveChildren(childrenAsArray, activeIndex, pageOffset)
+    : childrenAsArray.slice(
+        Math.max(activeIndex - pageOffset, 0),
+        activeIndex + pageOffset + 1
+      );
+
+  let baseIndex = settings.circular
+    ? activeIndex - pageOffset
+    : Math.max(activeIndex - pageOffset, 0);
 
   return (
     <Animated.View {...rest} style={[{ flex: 1 }, rest.style]}>
@@ -233,7 +264,6 @@ function Container({ children, ...rest }: ViewProps) {
             return null;
           }
 
-          let baseIndex = settings.circular ? activeIndex - maxPages + 1 : 0;
           let pageIndex = baseIndex + index;
 
           return (
